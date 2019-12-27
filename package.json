@@ -1,0 +1,21 @@
+{
+  "name": "mmo-langs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "typings": "build/index",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^12.12.18"
+  },
+  "scripts": {
+    "test": "node ./build/test/main.test.js",
+    "clean": "rmdir build /S /Q ",
+    "build": "tsc",
+    "start": "node ./build/index.js",
+    "install": "tsc"
+  },
+  "keywords": [],
+  "author": "Terko Jones <terkojones@gmail.com>",
+  "license": "ISC"
+}
