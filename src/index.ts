@@ -205,7 +205,7 @@ const info: {
             } else {
                 filepath = path.format(it);
                 content = JSON.parse(fs.readFileSync(filepath, 'utf8'));
-                _log('\nFrom %s:', filepath);
+                _log('\ndesde %s:', filepath);
                 Object.keys(content).forEach(k => _log('\t %s', k));
                 safe_assign(dfts, content);
             }
@@ -217,7 +217,7 @@ const info: {
     for (let i = 0; i < langs.length; i++) {
         filepath = path.format(langs[i]);
         content = JSON.parse(fs.readFileSync(filepath, 'utf8'));
-        _log('\nFrom %s;', filepath)
+        _log('\ndesde %s;', filepath)
         Object.keys(content).forEach(k => {
             _log('\t %s', k)
             let ix = noTranslate.indexOf(k.toUpperCase());
@@ -241,7 +241,7 @@ const info: {
     const msgs: TMessageDictionaty = Object.assign(dfts, trans);
     _log("\nDiccionario resultante:")
     Object.keys(msgs).forEach(k => {
-        _log("\t" + k.padEnd(20, '.') + ".. %s: '%s'", k, msgs[k]);
+        _log("\t" + k.padEnd(20, '.') + "..: '%s'", msgs[k]);
     });
 }
 

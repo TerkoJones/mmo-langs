@@ -121,11 +121,11 @@ langs.info('langs',  'es_ES');
 ```
 Daría una salida en logger del tipo
 ```
-From ...\langs\errors_messages\default-lang.json:
+desde ...\langs\errors_messages\default-lang.json:
 	 ERR_TYPE
 	 ERR_RANGE
 
-From ...\langs\messages\default-lang.json:
+desde ...\langs\messages\default-lang.json:
 	 READY
 	 PUSH_KEY
 	 ERR_TYPE
@@ -133,11 +133,11 @@ From ...\langs\messages\default-lang.json:
 Sobrescrito ERR_TYPE('Type mismatch') con 'Type failded'.
 1 mensaje[s] sobreescritos.
 
-From ...\langs\errors_messages\mensajes-es_ES.json;
+desde ...\langs\errors_messages\mensajes-es_ES.json;
 	 ERR_TYPE
 	 ERR_RANGE
 
-From ...\langs\messages\es_ES.json;
+desde ...\langs\messages\es_ES.json;
 	 READY
 	 PUSH_KEY
 	 ALSO_HERE_TOO
@@ -149,10 +149,10 @@ Claves sin contrapartida:
 	ALSO_HERE_TOO: 'También aquí'
 
 Diccionario resultante:
-	ERR_TYPE.............. ERR_TYPE: 'Error de tipo'
-	ERR_RANGE............. ERR_RANGE: 'Índice fuera de rango'
-	READY................. READY: '¿Estás listo?'
-	PUSH_KEY.............. PUSH_KEY: 'Pulsa una tecla para continuar'
-	STILL_HERE............ STILL_HERE: 'Still here'
-	ALSO_HERE_TOO......... ALSO_HERE_TOO: 'También aquí'
+	ERR_TYPE.............. 'Error de tipo'
+	ERR_RANGE............. 'Índice fuera de rango'
+	READY................. '¿Estás listo?'
+	PUSH_KEY.............. 'Pulsa una tecla para continuar'
+	STILL_HERE............ 'Still here'
+	ALSO_HERE_TOO......... 'También aquí'
 ```
