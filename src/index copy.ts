@@ -14,7 +14,7 @@ type TMessages = {
  * @param {path.ParsedPath}     parsedPath ruta tal y como la devuelve la función 'path.parse';
  */
 type TFilePredicate = (parsedPath: path.ParsedPath) => boolean;
-type TLoggerFunction = typeof console.log;
+
 
 
 /**
@@ -28,14 +28,6 @@ interface ILangOptions {
     defaultFile?: string
 }
 
-interface ILangs {
-    (options: ILangOptions): TMessages;
-    (directory: string | string[], options: ILangOptions): TMessages;
-    (directory: string | string[], langCode: string, options: ILangOptions): TMessages;
-    logger: TLoggerFunction,
-    defaultFile: string,
-    info: typeof info
-}
 /**
  * Extrae el sufijo con lenguage y extension de los nombres archivos de messages. Estos archivos han de terminar con:
  * -xx_XX.json o -xx_XX.js
@@ -122,6 +114,38 @@ function* file_gen(root: string, predicate: TFilePredicate) {
     }(root))
 }
 
+function langs(directory: string | string[], langCode?: string): TMessages;
+function langs(directory: string | string[], options?: ILangOptions): TMessages;
+function langs(directory: string | string[], langCode?: string, options?: ILangOptions): TMessages;
+/**
+ * Carga todos los archivos de mensajes por defecto('default-lang.json' si no si indica otra cosa) de el 
+ * árbol/árboles de directorios indicados y, si se indica, les agrega los del idioma de código indicado.
+ * @param {string|string[]}     directories directorio o directorios a explorar.
+ * @param {string}              [langCode]  Código del lenguage buscado.
+ * @param {ILangOptions}        [options]   Opciones de carga.
+ */
+function langs(directories: string | string[], langCode?: string | ILangOptions, options?: ILangOptions): TMessages {
+
+    options = check_options(directories, langCode, options);
+    const msgs: TMessageDictionaty = {};
+    const langs: path.ParsedPath[] = [];
+    if (!Array.isArray(directories)) directories = [directories];
+
+    for (let dir of options.directories) {
+        for (let it of file_gen(dir, lang_predicate(options.langCode))) {
+            if (it.base !== _defaultFileName) {
+                langs.push(it);
+            } else {
+                unsafe_assign(msgs, JSON.parse(fs.readFileSync(path.format(it), 'utf8')));
+            }
+        }
+    }
+    for (let i = 0; i < langs.length; i++) {
+        unsafe_assign(msgs, JSON.parse(fs.readFileSync(path.format(langs[i]), 'utf8')));
+    }
+    return <TMessages>msgs;
+}
+
 function check_options(directories: string | string[] | ILangOptions, langCode?: string | ILangOptions, options?: ILangOptions): ILangOptions {
     const rexLang = /^([a-z]{2}_[A-Z]{2})$/g
     let opt: ILangOptions = {};
@@ -152,45 +176,7 @@ function check_options(directories: string | string[] | ILangOptions, langCode?:
     return opt;
 }
 
-/**
- * Carga todos los archivos de mensajes por defecto('default-lang.json' si no si indica otra cosa) de el 
- * árbol/árboles de directorios indicados y, si se indica, les agrega los del idioma de código indicado.
- * @param {string|string[]}     directories directorio o directorios a explorar.
- * @param {string}              [langCode]  Código del lenguage buscado.
- * @param {ILangOptions}        [options]   Opciones de carga.
- */
-const langs: {
-    (options: ILangOptions): TMessages;
-    (directory: string | string[], options: ILangOptions): TMessages;
-    (directory: string | string[], langCode: string, options: ILangOptions): TMessages;
-} = (directories: string | string[] | ILangOptions, langCode?: string | ILangOptions, options?: ILangOptions): TMessages => {
-
-    options = check_options(directories, langCode, options);
-    const msgs: TMessageDictionaty = {};
-    const langs: path.ParsedPath[] = [];
-
-    for (let dir of options.directories) {
-        for (let it of file_gen(dir, lang_predicate(options.langCode))) {
-            if (it.base !== _defaultFileName) {
-                langs.push(it);
-            } else {
-                unsafe_assign(msgs, JSON.parse(fs.readFileSync(path.format(it), 'utf8')));
-            }
-        }
-    }
-    for (let i = 0; i < langs.length; i++) {
-        unsafe_assign(msgs, JSON.parse(fs.readFileSync(path.format(langs[i]), 'utf8')));
-    }
-    return <TMessages>msgs;
-}
-
-
-
-const info: {
-    (options: ILangOptions): void;
-    (directory: string | string[], options: ILangOptions): void;
-    (directory: string | string[], langCode: string, options: ILangOptions): void;
-} = (directories: string | string[] | ILangOptions, langCode?: string | ILangOptions, options?: ILangOptions): void => {
+function show_info(directories: string | string[] | ILangOptions, langCode?: string | ILangOptions, options?: ILangOptions) {
     options = check_options(directories, langCode, options);
     const langs: path.ParsedPath[] = [];
     const dfts: TMessageDictionaty = {};
@@ -229,36 +215,38 @@ const info: {
     if (langs.length) {
         noTranslate = noTranslate.filter(k => k !== '');
         if (noTranslate.length) {
-            _log('\nClaves sin traducción:');
+            _log('Claves sin traducción:');
             noTranslate.forEach(k => _log("\t%s: '%s'", k, dfts[k]));
         }
         let noSource = Object.keys(trans).filter(k => !keys.includes(k));
         if (noSource.length) {
-            _log("\nClaves sin contrapartida:");
+            _log("Claves sin contrapartida:");
             noSource.forEach(k => _log("\t%s: '%s'", k, trans[k]))
         }
     }
     const msgs: TMessageDictionaty = Object.assign(dfts, trans);
-    _log("\nDiccionario resultante:")
+    _log("Diccionario resultante:")
     Object.keys(msgs).forEach(k => {
         _log("\t" + k.padEnd(20, '.') + ".. %s: '%s'", k, msgs[k]);
     });
 }
 
+namespace langs {
+    /**
+     * Establece la función de logüeo a utilizar cuando se usa el modo segúro.
+     * @param {console.log} log función al estilo console.log; 
+     */
+    export function setLogger(log: typeof console.log) {
+        _log = log;
+    }
 
-
-export default <ILangs>Object.assign(langs, {
-    get logger() {
-        return _log;
-    },
-    set logger(val: TLoggerFunction) {
-        _log = val;
-    },
-    get defaultFile() {
-        return _defaultFileName;
-    },
-    set defaultFile(val: string) {
-        _defaultFileName = val;
-    },
-    info: info
-});
+    /**
+     * Establece el nombre del archivo de mensajes por dejecto. Si no se undica éste será `default-lang.js`. 
+     * @param {string}  filename    Nuevo nombre para archivo de mensajes por defecto.  
+     */
+    export function setDefaultFileName(filename: string) {
+        _defaultFileName = filename;
+    }
+    export const info = show_info;
+}
+export default langs;

@@ -1,10 +1,12 @@
 import langs from '../index';
 
-langs.setLogger(console.warn);
 
 
-const msgs = langs(['src/errors_messages', 'src/messages'], {
-    safe: true,
+langs.info({
+    directories: ['src/errors_messages', 'src/messages'],
     langCode: 'es_ES'
 });
-console.log(msgs);
+
+
+
+
